@@ -62,3 +62,7 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
             return
         settings = updated
         text_font.configure(size=settings.font_size)
+
+    def change_size(delta):
+        size = min(MAX_FONT_SIZE, max(MIN_FONT_SIZE, settings.font_size + delta))
+        save_settings(replace(settings, font_size=size))
