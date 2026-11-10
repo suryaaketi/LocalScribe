@@ -60,3 +60,15 @@ For long PCM WAV files, LocalScribe displays each completed minute of source aud
 Press **Command–O** to choose a file. **Smaller Text** and **Larger Text** change the transcript size and remember it for the next launch. **Show History** opens the recent saved transcripts.
 
 Use `--engine` or `LOCALSCRIBE_ENGINE` to select another local Argmax CLI. Use `--state-dir` to test with a separate history directory.
+
+## Privacy and current scope
+
+Setup downloads source, dependencies, and model assets from their publishers. The app passes a local WAV and model to the engine and makes no network requests during transcription. The Mac prototype additionally denies network access to its engine process. LocalScribe leaves the WAV in place. It keeps preferences and, when enabled, transcript text, timestamps, and up to 32 cache keys in a local SQLite database. On macOS the database is under `~/Library/Application Support/LocalScribe Python Prototype`. Settings and history stay on the device where they were saved. Reopening the same WAV with the same engine and model can reuse a saved transcript. Turning off history saving clears the cache keys and stops new saves. You can still open previously saved transcripts.
+
+The prototype supports WAV transcription and text history. Live microphone and system audio capture, the global shortcut, automatic paste, and installers are pending. The Windows window is the first porting step. The floating pet is currently available in the Mac prototype and installed Mac app.
+
+## Credits
+
+OpenAI developed Whisper. Argmax converted the large-v3 Turbo model to Core ML and publishes the WhisperKit engine used by this project. PyObjC connects the Python app to Apple’s native macOS frameworks. See [third-party sources and licenses](THIRD_PARTY_NOTICES.md).
+
+LocalScribe’s own source is available under the [MIT license](LICENSE).
