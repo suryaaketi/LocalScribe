@@ -48,3 +48,9 @@ class LocalScribeError(ValueError):
 class NoSpeech(LocalScribeError):
     def __init__(self):
         super().__init__("No speech was detected. Try a WAV file with clear speech.")
+
+
+def display_error(error):
+    if isinstance(error, LocalScribeError):
+        return str(error)
+    return "LocalScribe couldn’t read the file or run the speech engine. Check the setup and try again."
