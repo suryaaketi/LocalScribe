@@ -81,3 +81,27 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
         busy = value
         for button in (choose_button, history_button):
             button.state(["disabled" if value else "!disabled"])
+
+    def poll():
+        while True:
+            try:
+                kind, payload = events.get_nowait()
+            except Empty:
+                root.after(50, poll)
+                return
+            if kind == "partial":
+                section, index, count = payload
+                if section:
+                    prefix = "\n\n" if text.index("end-1c") != "1.0" else ""
+                    show(prefix + section, append=True)
+                status.set(f"Transcribing · {index} of {count} sections complete")
+                continue
+            if kind == "done":
+                result, message = payload
+                if text.get("1.0", "end-1c") != result:
+                    show(result)
+                status.set(message)
+            else:
+                status.set(payload)
+            set_busy(False)
+            return
