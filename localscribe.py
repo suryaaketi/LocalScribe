@@ -519,3 +519,18 @@ def run_mac_app(engine, model, history, smoke_test):
             self.button.setEnabled_(self.ready and not busy)
             self.save_history.setEnabled_(not busy)
             self.history_button.setEnabled_(not busy)
+
+        def chooseAudio_(self, _):
+            if self.busy or not self.ready:
+                return
+            self.setBusy(True)
+            panel = mac.NSOpenPanel.openPanel()
+            panel.setAllowsMultipleSelection_(False)
+            panel.setAllowedFileTypes_(["wav"])
+            if panel.runModal() != mac.NSModalResponseOK or panel.URL() is None:
+                self.setBusy(False)
+                return
+            audio = Path(panel.URL().path()).resolve()
+            self.showText("")
+            self.status.setStringValue_("Transcribing on this Mac…")
+            Thread(target=self.transcribe_in_background, args=(audio,), daemon=True).start()
