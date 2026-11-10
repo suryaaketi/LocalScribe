@@ -556,3 +556,65 @@ def run_mac_app(engine, model, history, smoke_test):
                 self.showText("Choose another WAV file to try again.")
             self.status.setStringValue_(status)
             self.setBusy(False)
+
+    application = mac.NSApplication.sharedApplication()
+    application.setActivationPolicy_(mac.NSApplicationActivationPolicyRegular)
+    controls = Controls.alloc().init()
+    controls.prepare()
+    if smoke_test:
+        assert controls.window.title() == "LocalScribe"
+        assert controls.pet.frame().size.width == 64
+        assert controls.text.string().strip()
+        if controls.ready:
+            assert controls.window.initialFirstResponder() == controls.button
+            assert controls.window.defaultButtonCell() == controls.button.cell()
+            controls.setBusy(True)
+            controls.chooseAudio_(None)
+            assert controls.busy and not controls.button.isEnabled()
+            controls.setBusy(False)
+            assert controls.button.isEnabled()
+        controls.settings = replace(controls.settings, font_size=MAX_FONT_SIZE)
+        controls.applySettings()
+        assert controls.text.font().pointSize() == MAX_FONT_SIZE
+        for appearance in (mac.NSAppearanceNameAqua, mac.NSAppearanceNameDarkAqua):
+            controls.window.setAppearance_(mac.NSAppearance.appearanceNamed_(appearance))
+            controls.window.setContentSize_(mac.NSMakeSize(515, 390))
+            controls.window.contentView().layoutSubtreeIfNeeded()
+            assert controls.button.frame().size.height >= 40
+            assert controls.scroll.frame().size.height >= 120
+        controls.showText("")
+        original = controls.window.frame()
+        controls.appendTranscript("The first section is ready.\n" * 110, 1, 4)
+        clip = controls.scroll.contentView()
+        assert controls.text.frame().size.height > clip.bounds().size.height
+        assert controls.scroll.scrollerStyle() == mac.NSScrollerStyleLegacy
+        assert controls.scroll.hasVerticalScroller() and not controls.scroll.autohidesScrollers()
+        screen = controls.window.screen() or mac.NSScreen.mainScreen()
+        if screen and screen.visibleFrame().size.height > original.size.height + 24:
+            assert controls.window.frame().size.height > original.size.height
+            assert controls.window.frame().size.height <= screen.visibleFrame().size.height
+        clip.scrollToPoint_(mac.NSMakePoint(0, 120))
+        controls.scroll.reflectScrolledClipView_(clip)
+        origin = clip.bounds().origin.y
+        controls.appendTranscript("More text without moving the reader.\n" * 40, 2, 4)
+        assert abs(clip.bounds().origin.y - origin) < 2
+        controls.windowWillStartLiveResize_(None)
+        controls.window.setContentSize_(mac.NSMakeSize(550, 400))
+        controls.windowDidResize_(None)
+        resized = controls.window.frame().size.height
+        last_origin = controls.text.frame().size.height - clip.bounds().size.height
+        clip.scrollToPoint_(mac.NSMakePoint(0, last_origin))
+        controls.scroll.reflectScrolledClipView_(clip)
+        controls.appendTranscript("The viewport follows the end.\n" * 45, 3, 4)
+        assert controls.window.frame().size.height == resized
+        assert clip.bounds().origin.y > last_origin
+        assert controls.text.frame().size.height - mac.NSMaxY(clip.bounds()) <= 24
+        reading = clip.bounds().origin.y
+        controls.finished(controls.text.string(), "Saved to local history.")
+        assert abs(clip.bounds().origin.y - reading) < 2
+        transcript = controls.text.string()
+        controls.finished(None, "The final section failed.")
+        assert controls.text.string() == transcript
+        assert controls.status.stringValue().startswith("Partial transcript shown.")
+        print("PASS: light/dark, resize, screen-bounded growth, scroll position, and end following")
+        return
