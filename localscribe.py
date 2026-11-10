@@ -324,3 +324,24 @@ def run_mac_app(engine, model, history, smoke_test):
             self.text.setTextContainerInset_(mac.NSMakeSize(10, 9))
             self.text.setBackgroundColor_(mac.NSColor.textBackgroundColor())
             self.scroll.setDocumentView_(self.text)
+
+            content = self.window.contentView()
+            stack = mac.NSStackView.stackViewWithViews_([title, intro, actions, settings, self.status, self.scroll])
+            stack.setOrientation_(mac.NSUserInterfaceLayoutOrientationVertical)
+            stack.setAlignment_(mac.NSLayoutAttributeLeading)
+            stack.setSpacing_(8)
+            stack.setTranslatesAutoresizingMaskIntoConstraints_(False)
+            content.addSubview_(stack)
+            mac.NSLayoutConstraint.activateConstraints_([
+                stack.leadingAnchor().constraintEqualToAnchor_constant_(content.leadingAnchor(), 18),
+                stack.trailingAnchor().constraintEqualToAnchor_constant_(content.trailingAnchor(), -18),
+                stack.topAnchor().constraintEqualToAnchor_constant_(content.topAnchor(), 16),
+                stack.bottomAnchor().constraintEqualToAnchor_constant_(content.bottomAnchor(), -16),
+                intro.widthAnchor().constraintEqualToAnchor_(stack.widthAnchor()),
+                self.status.widthAnchor().constraintEqualToAnchor_(stack.widthAnchor()),
+                self.scroll.widthAnchor().constraintEqualToAnchor_(stack.widthAnchor()),
+                self.scroll.heightAnchor().constraintGreaterThanOrEqualToConstant_(120),
+            ])
+            for label in (title, intro, self.status):
+                label.setContentHuggingPriority_forOrientation_(751, mac.NSLayoutConstraintOrientationVertical)
+                label.setContentCompressionResistancePriority_forOrientation_(751, mac.NSLayoutConstraintOrientationVertical)
