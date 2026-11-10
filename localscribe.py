@@ -292,3 +292,11 @@ def run_mac_app(engine, model, history, smoke_test):
             self.button = self.makeButton("Choose WAV File…", "chooseAudio:")
             self.history_button = self.makeButton("Show History", "showHistory:")
             actions = self.makeRow([self.button, self.history_button])
+
+            self.save_history = mac.NSButton.checkboxWithTitle_target_action_("Save transcript history", self, "saveHistory:")
+            self.save_history.setFont_(mac.NSFont.systemFontOfSize_(14))
+            smaller = self.makeButton("Smaller Text", "changeTextSize:")
+            smaller.setTag_(-1)
+            larger = self.makeButton("Larger Text", "changeTextSize:")
+            larger.setTag_(1)
+            settings = self.makeRow([self.save_history, smaller, larger])
