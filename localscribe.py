@@ -665,3 +665,16 @@ def main():
         except (OSError, LocalScribeError) as error:
             parser.exit(1, f"{display_error(error)}\n")
         print(text)
+    elif WINDOWS:
+        from functools import partial
+        try:
+            from windows_app import run_windows_app
+        except ModuleNotFoundError as error:
+            if error.name not in {"tkinter", "_tkinter"}:
+                raise
+            parser.exit(1, "Install Python with the Tcl/Tk option to open the LocalScribe window.\n")
+
+        run_windows_app(partial(process_audio, engine=engine, model=model, history=history),
+                        history, display_error, args.smoke_test)
+    else:
+        run_mac_app(engine, model, history, args.smoke_test)
