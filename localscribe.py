@@ -345,3 +345,12 @@ def run_mac_app(engine, model, history, smoke_test):
             for label in (title, intro, self.status):
                 label.setContentHuggingPriority_forOrientation_(751, mac.NSLayoutConstraintOrientationVertical)
                 label.setContentCompressionResistancePriority_forOrientation_(751, mac.NSLayoutConstraintOrientationVertical)
+
+            self.window.setDelegate_(self)
+            try:
+                self.settings = history.settings()
+                self.loadHistory()
+            except (OSError, sqlite3.Error):
+                self.showText("Your transcript will appear here after you choose a WAV file.")
+                self.status.setStringValue_("Local history is unavailable. Check the app’s storage and try again.")
+            self.applySettings()
