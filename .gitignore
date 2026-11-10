@@ -11,3 +11,8 @@ __pycache__/
 *.m4a
 *.mp3
 *.flac
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.mlmodelc/
+*.safetensors
