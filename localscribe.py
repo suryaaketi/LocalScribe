@@ -197,3 +197,29 @@ def cache_key(audio, engine, model):
     cache_version = "localscribe-whisper-cpp-v1" if WINDOWS else "localscribe-transcript-v2"
     identity = [cache_version, SECTION_SECONDS, audio_digest, file_stamp(engine), stamps]
     return sha256(json.dumps(identity).encode()).hexdigest()
+
+
+def process_audio(audio, engine, model, history, on_partial=None):
+    check_setup(engine, model)
+    if not audio.is_file() or audio.suffix.lower() != ".wav":
+        raise LocalScribeError("Choose a local WAV audio file.")
+    try:
+        saves_history = history.settings().saves_history
+        stamp = file_stamp(audio)
+        key = cache_key(audio, engine, model) if saves_history else None
+        if key and file_stamp(audio) == stamp:
+            cached = history.cache_get(key)
+            if cached is not None:
+                return cached, "Loaded from local transcript cache."
+    except (OSError, sqlite3.Error):
+        return transcribe(audio, engine, model, on_partial), "Transcript ready. Local history was unavailable."
+
+    text = transcribe(audio, engine, model, on_partial)
+    if saves_history:
+        try:
+            valid_key = key if file_stamp(audio) == stamp else None
+            if history.save(text, cache_key=valid_key):
+                return text, "Saved to local history."
+        except (OSError, sqlite3.Error):
+            return text, "Transcript ready. Local history could not be saved."
+    return text, "Transcript ready. History saving is off."
