@@ -512,3 +512,10 @@ def run_mac_app(engine, model, history, smoke_test):
                 self.loadHistory()
             except (OSError, sqlite3.Error):
                 self.status.setStringValue_("Couldn’t open saved transcripts. Check the app’s storage and try again.")
+
+        @objc.python_method
+        def setBusy(self, busy):
+            self.busy = busy
+            self.button.setEnabled_(self.ready and not busy)
+            self.save_history.setEnabled_(not busy)
+            self.history_button.setEnabled_(not busy)
