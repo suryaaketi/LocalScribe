@@ -239,3 +239,13 @@ def run_mac_app(engine, model, history, smoke_test):
             for x in (20, 35):
                 eye = mac.NSMakeRect(x, 26, 8, 13)
                 mac.NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(eye, 4, 4).fill()
+
+        @objc.python_method
+        def pressFeedback(self, opacity):
+            if mac.NSWorkspace.sharedWorkspace().accessibilityDisplayShouldReduceMotion():
+                self.setAlphaValue_(opacity)
+                return
+            mac.NSAnimationContext.beginGrouping()
+            mac.NSAnimationContext.currentContext().setDuration_(0.12)
+            self.animator().setAlphaValue_(opacity)
+            mac.NSAnimationContext.endGrouping()
