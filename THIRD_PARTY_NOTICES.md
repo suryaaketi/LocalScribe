@@ -11,3 +11,5 @@
 | whisper.cpp v1.8.3 | External offline speech engine on Windows | [Source and MIT license](https://github.com/ggml-org/whisper.cpp/blob/v1.8.3/LICENSE), [release binaries](https://github.com/ggml-org/whisper.cpp/releases/tag/v1.8.3) |
 | Whisper large-v3 Turbo Q5, ggml conversion | Windows model asset | [Model and license](https://huggingface.co/ggerganov/whisper.cpp/blob/main/ggml-large-v3-turbo-q5_0.bin) |
 | Tkinter and Tcl/Tk | Windows prototype controls, supplied with Python’s Windows installer | [Tkinter documentation](https://docs.python.org/3/library/tkinter.html), [Tcl/Tk license](https://www.tcl-lang.org/software/tcltk/license.html) |
+
+The source checkout contains LocalScribe code and setup instructions. Third-party software and model assets come directly from the sources above. The Hugging Face CLI is an optional setup tool for downloading the speech assets. [Hugging Face CLI documentation](https://huggingface.co/docs/huggingface_hub/guides/cli)
