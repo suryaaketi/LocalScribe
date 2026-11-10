@@ -61,3 +61,23 @@ class History:
                 (key,),
             ).fetchone()
             return row[0] if row else None
+
+    def save(self, text, *, cache_key=None):
+        with closing(self._writer()) as connection, connection:
+            connection.execute("BEGIN IMMEDIATE")
+            self._initialize(connection)
+            if not self._read_settings(connection).saves_history:
+                return False
+            transcript = connection.execute("INSERT INTO transcripts (text) VALUES (?)", (text,))
+            if cache_key is not None:
+                connection.execute(
+                    "INSERT INTO transcript_cache (key, transcript_id) VALUES (?, ?) "
+                    "ON CONFLICT(key) DO UPDATE SET transcript_id = excluded.transcript_id",
+                    (cache_key, transcript.lastrowid),
+                )
+                connection.execute(
+                    "DELETE FROM transcript_cache WHERE key IN (SELECT key FROM transcript_cache "
+                    "ORDER BY transcript_id DESC LIMIT -1 OFFSET ?)",
+                    (CACHE_LIMIT,),
+                )
+            return True
