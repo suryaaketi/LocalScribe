@@ -159,3 +159,4 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
         root.destroy()
         print("PASS: Windows prototype controls created")
         return
+    root.mainloop()
