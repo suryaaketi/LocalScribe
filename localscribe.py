@@ -249,3 +249,19 @@ def run_mac_app(engine, model, history, smoke_test):
             mac.NSAnimationContext.currentContext().setDuration_(0.12)
             self.animator().setAlphaValue_(opacity)
             mac.NSAnimationContext.endGrouping()
+
+        def mouseDown_(self, event):
+            self.press = self.window().mouseLocationOutsideOfEventStream()
+            self.dragged = False
+            self.pressFeedback(0.75)
+
+        def mouseDragged_(self, event):
+            point = mac.NSEvent.mouseLocation()
+            proposed = mac.NSMakePoint(point.x - self.press.x, point.y - self.press.y)
+            origin = self.window().frame().origin
+            if self.dragged or abs(proposed.x - origin.x) + abs(proposed.y - origin.y) >= 4:
+                self.dragged = True
+                self.window().setFrameOrigin_(proposed)
+
+        def mouseUp_(self, event):
+            self.pressFeedback(1)
