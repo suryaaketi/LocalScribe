@@ -18,3 +18,9 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
     root.minsize(540, 320)
     if smoke_test:
         root.withdraw()
+    body = ttk.Frame(root, padding=12)
+    body.pack(fill="both", expand=True)
+    status = tk.StringVar(value="Choose a local WAV file to transcribe.")
+    ttk.Label(body, textvariable=status, wraplength=510).pack(side="bottom", anchor="w", pady=(8, 0))
+    toolbar = ttk.Frame(body)
+    toolbar.pack(fill="x", pady=(0, 8))
