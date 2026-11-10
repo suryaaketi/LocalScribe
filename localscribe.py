@@ -54,3 +54,17 @@ def display_error(error):
     if isinstance(error, LocalScribeError):
         return str(error)
     return "LocalScribe couldn’t read the file or run the speech engine. Check the setup and try again."
+
+
+def check_setup(engine, model):
+    if WINDOWS:
+        if engine.suffix.lower() != ".exe" or not engine.is_file():
+            raise LocalScribeError("Install whisper-cli.exe for Windows or select it with --engine. See the README.")
+        if not model.is_file():
+            raise LocalScribeError("The Windows speech model is missing. See the README or select a model with --model.")
+        return
+    if not engine.is_file() or not os.access(engine, os.X_OK):
+        raise LocalScribeError("The Argmax CLI is missing. Run setup_engine.sh or pass --engine.")
+    for name in REQUIRED_MODEL_FILES:
+        if not (model / name).is_file():
+            raise LocalScribeError(f"The local speech model is missing {name}. See the README for setup.")
