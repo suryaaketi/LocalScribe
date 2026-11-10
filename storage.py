@@ -91,3 +91,6 @@ class History:
             return [
                 text for (text,) in connection.execute("SELECT text FROM transcripts ORDER BY id DESC LIMIT 20")
             ]
+
+    def _reader(self):
+        return sqlite3.connect(self.path.as_uri() + "?mode=ro", uri=True)
