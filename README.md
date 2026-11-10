@@ -18,3 +18,13 @@ py -3 .\localscribe.py --transcribe-file 'C:\path\to\sample.wav'
 ```
 
 Use `--engine` or `LOCALSCRIBE_ENGINE` to choose an alternate local Windows build, including one built with CUDA. Use `--model` or `LOCALSCRIBE_MODEL` to choose another local Whisper model in ggml format. The Windows prototype stores its settings and history under `%LOCALAPPDATA%\LocalScribe Python Prototype`.
+
+## Set up on an Apple Silicon Mac
+
+Use Python 3.11 or later, Git, and Xcode with the macOS SDK. Development was verified with Python 3.11 and Xcode 27.2. Run these commands from the project directory.
+
+```sh
+python3 -m venv .build/venv
+.build/venv/bin/python -m pip install -r requirements.txt
+./setup_engine.sh
+```
