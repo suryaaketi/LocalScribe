@@ -144,3 +144,34 @@ def write_wave_section(source, destination, frames):
                 raise LocalScribeError("The WAV ended before all of its audio could be read.")
             output.writeframesraw(data)
             remaining -= len(data) // frame_size
+
+
+def transcribe(audio, engine, model, on_partial=None):
+    try:
+        source = wave.open(str(audio), "rb")
+    except (wave.Error, EOFError):
+        # The native engine may decode WAV encodings the standard Python reader cannot.
+        return transcribe_section(audio, engine, model)
+
+    with source:
+        frames = source.getnframes()
+        section_frames = source.getframerate() * SECTION_SECONDS
+        if frames <= section_frames:
+            return transcribe_section(audio, engine, model)
+        count = (frames + section_frames - 1) // section_frames
+        pieces = []
+        with tempfile.TemporaryDirectory(prefix="localscribe-audio-section-") as scratch:
+            section = Path(scratch) / "section.wav"
+            for index in range(count):
+                write_wave_section(source, section, min(section_frames, frames - index * section_frames))
+                try:
+                    text = transcribe_section(section, engine, model)
+                except NoSpeech:
+                    text = ""
+                if text:
+                    pieces.append(text)
+                if on_partial is not None:
+                    on_partial(text, index + 1, count)
+        if not pieces:
+            raise NoSpeech()
+        return "\n\n".join(pieces)
