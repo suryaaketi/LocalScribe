@@ -135,3 +135,13 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
 
         Thread(target=work, daemon=True).start()
         root.after(50, poll)
+
+    choose_button = ttk.Button(toolbar, text="Transcribe WAV…", command=choose_audio)
+    choose_button.pack(side="left")
+    history_button = ttk.Button(toolbar, text="Show History", command=show_history)
+    history_button.pack(side="left", padx=(6, 12))
+    ttk.Button(toolbar, text="Smaller Text", command=lambda: change_size(-1)).pack(side="left")
+    ttk.Button(toolbar, text="Larger Text", command=lambda: change_size(1)).pack(side="left", padx=(6, 12))
+    ttk.Checkbutton(toolbar, text="Save history", variable=saves_history,
+                    command=lambda: save_settings(replace(settings, saves_history=saves_history.get()))).pack(side="left")
+    root.bind("<Control-o>", lambda _: choose_audio())
