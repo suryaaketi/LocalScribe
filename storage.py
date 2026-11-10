@@ -94,3 +94,9 @@ class History:
 
     def _reader(self):
         return sqlite3.connect(self.path.as_uri() + "?mode=ro", uri=True)
+
+    def _writer(self):
+        self.directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+        connection = sqlite3.connect(self.path)
+        connection.execute("PRAGMA foreign_keys = ON")
+        return connection
