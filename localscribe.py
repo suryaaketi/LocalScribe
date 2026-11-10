@@ -487,3 +487,20 @@ def run_mac_app(engine, model, history, smoke_test):
             self.text.setFont_(mac.NSFont.systemFontOfSize_(self.settings.font_size))
             self.save_history.setState_(mac.NSControlStateValueOn if self.settings.saves_history else mac.NSControlStateValueOff)
             self.fitTranscript(expand)
+
+        @objc.python_method
+        def updateSettings(self, settings):
+            try:
+                history.update_settings(settings)
+                self.settings = settings
+            except (OSError, sqlite3.Error):
+                self.status.setStringValue_("Couldn’t save your settings. Check the app’s storage and try again.")
+            self.applySettings(expand=True)
+
+        def changeTextSize_(self, sender):
+            size = min(MAX_FONT_SIZE, max(MIN_FONT_SIZE, self.settings.font_size + sender.tag()))
+            self.updateSettings(replace(self.settings, font_size=size))
+
+        def saveHistory_(self, sender):
+            if not self.busy:
+                self.updateSettings(replace(self.settings, saves_history=sender.state() == mac.NSControlStateValueOn))
