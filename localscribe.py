@@ -678,3 +678,7 @@ def main():
                         history, display_error, args.smoke_test)
     else:
         run_mac_app(engine, model, history, args.smoke_test)
+
+
+if __name__ == "__main__":
+    main()
