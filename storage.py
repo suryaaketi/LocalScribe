@@ -33,3 +33,16 @@ class History:
             return Settings()
         with closing(self._reader()) as connection:
             return self._read_settings(connection)
+
+    def update_settings(self, settings):
+        with closing(self._writer()) as connection, connection:
+            connection.execute("BEGIN IMMEDIATE")
+            self._initialize(connection)
+            connection.execute(
+                "INSERT INTO settings (id, font_size, saves_history) VALUES (1, ?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET font_size = excluded.font_size, "
+                "saves_history = excluded.saves_history",
+                (settings.font_size, settings.saves_history),
+            )
+            if not settings.saves_history:
+                connection.execute("DELETE FROM transcript_cache")
