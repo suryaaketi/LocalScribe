@@ -75,3 +75,9 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
             return
         show("\n\n".join(entries))
         status.set("Recent transcripts" if entries else "No saved transcripts yet.")
+
+    def set_busy(value):
+        nonlocal busy
+        busy = value
+        for button in (choose_button, history_button):
+            button.state(["disabled" if value else "!disabled"])
