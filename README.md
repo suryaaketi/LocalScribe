@@ -28,3 +28,19 @@ python3 -m venv .build/venv
 .build/venv/bin/python -m pip install -r requirements.txt
 ./setup_engine.sh
 ```
+
+### Get the speech assets
+
+Download the Core ML weights from Argmax and the matching tokenizer from OpenAI. The model folder is about 1.64 GB. These commands fetch the selected model and tokenizer at fixed revisions. You can also use an existing copy with `LOCALSCRIBE_MODEL` or `--model`.
+
+```sh
+.build/venv/bin/python -m pip install 'huggingface_hub==1.33.0'
+HF_HUB_DISABLE_IMPLICIT_TOKEN=1 .build/venv/bin/hf download argmaxinc/whisperkit-coreml \
+  --revision 04e5c42d80a522518023727e8c7e68d4bb391b28 \
+  --include 'openai_whisper-large-v3-v20240930_turbo/**' \
+  --local-dir .build/models
+HF_HUB_DISABLE_IMPLICIT_TOKEN=1 .build/venv/bin/hf download openai/whisper-large-v3 \
+  config.json tokenizer.json tokenizer_config.json \
+  --revision 06f233fe06e710322aca913c1bc4249a0d71fce1 \
+  --local-dir .build/models/openai_whisper-large-v3-v20240930_turbo/tokenizer
+```
