@@ -39,3 +39,5 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
     scrollbar.pack(side="right", fill="y")
     text.configure(yscrollcommand=scrollbar.set)
     text.pack(side="left", fill="both", expand=True)
+    events = Queue()
+    busy = False
