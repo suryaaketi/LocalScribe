@@ -180,3 +180,20 @@ def transcribe(audio, engine, model, on_partial=None):
 def file_stamp(path):
     info = path.stat()
     return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns
+
+
+def cache_key(audio, engine, model):
+    # Use model file metadata so cache lookups do not read gigabytes of weights.
+    if WINDOWS:
+        assets = {model, *engine.parent.glob("*.dll")}
+    else:
+        assets = set(model.glob("*.mlmodelc/coremldata.bin"))
+        assets.update(model.glob("*.mlmodelc/model.mil"))
+        assets.update(model.glob("*.mlmodelc/weights/*.bin"))
+        assets.update(model / name for name in REQUIRED_MODEL_FILES)
+    stamps = [file_stamp(path) for path in sorted(assets)]
+    with audio.open("rb") as stream:
+        audio_digest = file_digest(stream, "sha256").hexdigest()
+    cache_version = "localscribe-whisper-cpp-v1" if WINDOWS else "localscribe-transcript-v2"
+    identity = [cache_version, SECTION_SECONDS, audio_digest, file_stamp(engine), stamps]
+    return sha256(json.dumps(identity).encode()).hexdigest()
