@@ -105,3 +105,33 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
                 status.set(payload)
             set_busy(False)
             return
+
+    def choose_audio():
+        if busy:
+            return
+        set_busy(True)
+        try:
+            selected = filedialog.askopenfilename(parent=root, filetypes=[("WAV audio", "*.wav")])
+        except tk.TclError:
+            set_busy(False)
+            status.set("Couldn’t open the file picker. Try again.")
+            return
+        if not selected:
+            set_busy(False)
+            return
+        show("")
+        status.set("Transcribing on this PC…")
+
+        def work():
+            def on_partial(section, index, count):
+                events.put(("partial", (section, index, count)))
+
+            try:
+                result = transcribe(Path(selected), on_partial=on_partial)
+            except (OSError, ValueError, sqlite3.Error) as error:
+                events.put(("error", display_error(error)))
+            else:
+                events.put(("done", result))
+
+        Thread(target=work, daemon=True).start()
+        root.after(50, poll)
