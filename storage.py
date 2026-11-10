@@ -100,3 +100,9 @@ class History:
         connection = sqlite3.connect(self.path)
         connection.execute("PRAGMA foreign_keys = ON")
         return connection
+
+    @staticmethod
+    def _has_table(connection, name):
+        return connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", (name,)
+        ).fetchone() is not None
