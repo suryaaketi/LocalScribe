@@ -400,3 +400,22 @@ def run_mac_app(engine, model, history, smoke_test):
             row.setAlignment_(mac.NSLayoutAttributeCenterY)
             row.setSpacing_(8)
             return row
+
+        @objc.python_method
+        def showText(self, text, expand=False):
+            self.text.setString_(text)
+            self.text.setFont_(mac.NSFont.systemFontOfSize_(self.settings.font_size))
+            self.text.setTextColor_(mac.NSColor.textColor())
+            self.fitTranscript(expand)
+            self.text.scrollRangeToVisible_((0, 0))
+
+        @objc.python_method
+        def transcriptHeight(self):
+            self.window.contentView().layoutSubtreeIfNeeded()
+            size = self.scroll.contentView().bounds().size
+            self.text.setFrameSize_(mac.NSMakeSize(size.width, self.text.frame().size.height))
+            container = self.text.textContainer()
+            layout = self.text.layoutManager()
+            layout.ensureLayoutForTextContainer_(container)
+            used = layout.usedRectForTextContainer_(container)
+            return ceil(mac.NSMaxY(used) + 2 * self.text.textContainerInset().height)
