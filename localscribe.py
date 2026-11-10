@@ -265,3 +265,21 @@ def run_mac_app(engine, model, history, smoke_test):
 
         def mouseUp_(self, event):
             self.pressFeedback(1)
+
+    class Controls(NSObject):
+        @objc.python_method
+        def prepare(self):
+            self.busy = False
+            self.ready = False
+            self.user_resized = False
+            self.fitting = False
+            self.settings = Settings()
+            self.window = mac.NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
+                mac.NSMakeRect(0, 0, 640, 425),
+                mac.NSWindowStyleMaskTitled | mac.NSWindowStyleMaskClosable | mac.NSWindowStyleMaskResizable,
+                mac.NSBackingStoreBuffered, False,
+            )
+            self.window.setTitle_("LocalScribe")
+            self.window.setMinSize_(mac.NSMakeSize(515, 390))
+            self.window.setReleasedWhenClosed_(False)
+            self.window.center()
