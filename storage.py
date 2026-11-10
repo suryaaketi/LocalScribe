@@ -46,3 +46,18 @@ class History:
             )
             if not settings.saves_history:
                 connection.execute("DELETE FROM transcript_cache")
+
+    def cache_get(self, key):
+        if not self.path.is_file():
+            return None
+        with closing(self._reader()) as connection:
+            connection.execute("BEGIN")
+            if not self._read_settings(connection).saves_history or not self._has_table(connection, "transcript_cache"):
+                return None
+            row = connection.execute(
+                "SELECT transcripts.text FROM transcript_cache "
+                "JOIN transcripts ON transcripts.id = transcript_cache.transcript_id "
+                "WHERE transcript_cache.key = ?",
+                (key,),
+            ).fetchone()
+            return row[0] if row else None
