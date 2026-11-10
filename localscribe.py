@@ -534,3 +534,14 @@ def run_mac_app(engine, model, history, smoke_test):
             self.showText("")
             self.status.setStringValue_("Transcribing on this Mac…")
             Thread(target=self.transcribe_in_background, args=(audio,), daemon=True).start()
+
+        @objc.python_method
+        def transcribe_in_background(self, audio):
+            try:
+                def preview(text, section, total):
+                    AppHelper.callAfter(self.appendTranscript, text, section, total)
+
+                text, status = process_audio(audio, engine, model, history, preview)
+                AppHelper.callAfter(self.finished, text, status)
+            except (OSError, LocalScribeError) as error:
+                AppHelper.callAfter(self.finished, None, display_error(error))
