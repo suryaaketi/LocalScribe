@@ -384,3 +384,19 @@ def run_mac_app(engine, model, history, smoke_test):
                 self.pet.setFrameOrigin_(mac.NSMakePoint(
                     area.origin.x + area.size.width - 90, area.origin.y + 56
                 ))
+
+        @objc.python_method
+        def makeButton(self, title, action):
+            button = mac.NSButton.buttonWithTitle_target_action_(title, self, action)
+            button.setControlSize_(mac.NSControlSizeLarge)
+            button.setFont_(mac.NSFont.systemFontOfSize_(14))
+            button.heightAnchor().constraintGreaterThanOrEqualToConstant_(40).setActive_(True)
+            return button
+
+        @objc.python_method
+        def makeRow(self, views):
+            row = mac.NSStackView.stackViewWithViews_(views)
+            row.setOrientation_(mac.NSUserInterfaceLayoutOrientationHorizontal)
+            row.setAlignment_(mac.NSLayoutAttributeCenterY)
+            row.setSpacing_(8)
+            return row
