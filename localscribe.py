@@ -354,3 +354,13 @@ def run_mac_app(engine, model, history, smoke_test):
                 self.showText("Your transcript will appear here after you choose a WAV file.")
                 self.status.setStringValue_("Local history is unavailable. Check the app’s storage and try again.")
             self.applySettings()
+
+            try:
+                check_setup(engine, model)
+            except LocalScribeError as error:
+                self.status.setStringValue_(str(error))
+                self.button.setEnabled_(False)
+            else:
+                self.ready = True
+                self.window.setInitialFirstResponder_(self.button)
+                self.window.setDefaultButtonCell_(self.button.cell())
