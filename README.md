@@ -44,3 +44,13 @@ HF_HUB_DISABLE_IMPLICIT_TOKEN=1 .build/venv/bin/hf download openai/whisper-large
   --revision 06f233fe06e710322aca913c1bc4249a0d71fce1 \
   --local-dir .build/models/openai_whisper-large-v3-v20240930_turbo/tokenizer
 ```
+
+### Run LocalScribe
+
+Double-click `Run LocalScribe Python.command` or run it from Terminal. Choose **Transcribe a WAV File**. A setup check and command-line transcription are also available.
+
+```sh
+"./Run LocalScribe Python.command" --check-setup
+"./Run LocalScribe Python.command" --smoke-test
+"./Run LocalScribe Python.command" --transcribe-file /path/to/example.wav
+```
