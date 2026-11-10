@@ -27,3 +27,9 @@ class History:
     def __init__(self, directory):
         self.directory = Path(directory).resolve()
         self.path = self.directory / "history.sqlite3"
+
+    def settings(self):
+        if not self.path.is_file():
+            return Settings()
+        with closing(self._reader()) as connection:
+            return self._read_settings(connection)
