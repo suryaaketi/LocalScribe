@@ -68,3 +68,41 @@ def check_setup(engine, model):
     for name in REQUIRED_MODEL_FILES:
         if not (model / name).is_file():
             raise LocalScribeError(f"The local speech model is missing {name}. See the README for setup.")
+
+
+def transcribe_section(audio, engine, model):
+    """Run the platform’s local engine on one section."""
+    if WINDOWS:
+        return transcribe_windows_section(audio, engine, model)
+    tokenizer = model / "tokenizer"
+    with tempfile.TemporaryDirectory(prefix="localscribe-python-report-") as output:
+        command = [
+            "/usr/bin/sandbox-exec", "-p", "(version 1) (allow default) (deny network*)",
+            str(engine), "transcribe",
+            "--audio-path", str(audio), "--model-path", str(model),
+            "--download-tokenizer-path", str(tokenizer),
+            "--audio-encoder-compute-units", "cpuAndGPU",
+            "--text-decoder-compute-units", "cpuAndGPU",
+            "--language", "en", "--temperature", "0", "--temperature-fallback-count", "0",
+            "--use-prefill-prompt", "--skip-special-tokens", "--first-token-log-prob-threshold=-1.5",
+            "--chunking-strategy", "none",
+            "--report", "--report-path", output,
+        ]
+        try:
+            result = subprocess.run(command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL, timeout=240, check=False)
+        except subprocess.TimeoutExpired:
+            raise LocalScribeError("The speech engine timed out. Try a shorter WAV file.") from None
+        report = Path(output) / (audio.stem + ".json")
+        if result.returncode or not report.is_file():
+            raise LocalScribeError("The speech engine couldn’t read this WAV file. Try another file or check the setup.")
+        try:
+            data = json.loads(report.read_text(encoding="utf-8"))
+        except ValueError:
+            raise LocalScribeError("The speech engine returned an unreadable result. Try the file again.") from None
+        text = data.get("text") if isinstance(data, dict) else None
+        if not isinstance(text, str):
+            raise LocalScribeError("The speech engine returned an unreadable result. Try the file again.")
+        if not text.strip():
+            raise NoSpeech()
+        return text.strip()
