@@ -39,3 +39,12 @@ REQUIRED_MODEL_FILES = (
     "tokenizer/tokenizer.json",
     "tokenizer/tokenizer_config.json",
 )
+
+
+class LocalScribeError(ValueError):
+    """An error message safe to show to a user."""
+
+
+class NoSpeech(LocalScribeError):
+    def __init__(self):
+        super().__init__("No speech was detected. Try a WAV file with clear speech.")
