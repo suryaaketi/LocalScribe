@@ -475,3 +475,15 @@ def run_mac_app(engine, model, history, smoke_test):
             else:
                 clip.scrollToPoint_(bounds.origin)
                 self.scroll.reflectScrolledClipView_(clip)
+
+        @objc.python_method
+        def loadHistory(self):
+            entries = history.recent()
+            self.showText("\n\n".join(entries) if entries else
+                          "Your transcript will appear here after you choose a WAV file.")
+
+        @objc.python_method
+        def applySettings(self, expand=False):
+            self.text.setFont_(mac.NSFont.systemFontOfSize_(self.settings.font_size))
+            self.save_history.setState_(mac.NSControlStateValueOn if self.settings.saves_history else mac.NSControlStateValueOff)
+            self.fitTranscript(expand)
