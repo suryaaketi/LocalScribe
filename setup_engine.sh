@@ -35,3 +35,22 @@ if [[ $(git -C "$source_dir" rev-parse HEAD) != "$argmax_revision" ]]; then
     printf '%s\n' 'Argmax source revision did not match the expected pin.' >&2
     exit 1
 fi
+
+# Keep the optional server dependencies out of the executable build.
+export BUILD_ALL=0
+# Use the same dependency pin as the original LocalScribe build. This copy
+# lives in the temporary build directory and the upstream source is unchanged.
+python3 - "$source_dir/Package.resolved" "$parser_url" "$parser_version" "$parser_revision" <<'PY'
+import json
+from pathlib import Path
+import sys
+
+lockfile, url, version, revision = sys.argv[1:]
+path = Path(lockfile)
+lock = json.loads(path.read_text(encoding="utf-8"))
+pins = lock["pins"]
+if len(pins) != 1 or pins[0]["identity"] != "swift-argument-parser" or pins[0]["location"] != url:
+    raise SystemExit("The Swift dependency lock does not match the expected upstream sources.")
+pins[0]["state"] = {"version": version, "revision": revision}
+path.write_text(json.dumps(lock, indent=2) + "\n", encoding="utf-8")
+PY
