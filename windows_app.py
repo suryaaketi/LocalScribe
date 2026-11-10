@@ -153,3 +153,9 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
             root.destroy()
 
     root.protocol("WM_DELETE_WINDOW", close)
+    if smoke_test:
+        root.update_idletasks()
+        assert text.winfo_exists() and scrollbar.winfo_exists()
+        root.destroy()
+        print("PASS: Windows prototype controls created")
+        return
