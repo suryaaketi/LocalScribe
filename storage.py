@@ -106,3 +106,10 @@ class History:
         return connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", (name,)
         ).fetchone() is not None
+
+    def _read_settings(self, connection):
+        if self._has_table(connection, "settings"):
+            row = connection.execute("SELECT font_size, saves_history FROM settings WHERE id = 1").fetchone()
+            if row:
+                return Settings(font_size=row[0], saves_history=bool(row[1]))
+        return Settings()
