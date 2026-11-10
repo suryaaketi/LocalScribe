@@ -504,3 +504,11 @@ def run_mac_app(engine, model, history, smoke_test):
         def saveHistory_(self, sender):
             if not self.busy:
                 self.updateSettings(replace(self.settings, saves_history=sender.state() == mac.NSControlStateValueOn))
+
+        def showHistory_(self, _):
+            if self.busy:
+                return
+            try:
+                self.loadHistory()
+            except (OSError, sqlite3.Error):
+                self.status.setStringValue_("Couldn’t open saved transcripts. Check the app’s storage and try again.")
