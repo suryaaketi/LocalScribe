@@ -41,3 +41,13 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
     text.pack(side="left", fill="both", expand=True)
     events = Queue()
     busy = False
+
+    def show(value, *, append=False):
+        following = text.yview()[1] >= 0.99
+        anchor = text.index("@0,0")
+        text.configure(state="normal")
+        if not append:
+            text.delete("1.0", "end")
+        text.insert("end", value)
+        text.configure(state="disabled")
+        text.yview("end" if append and following else anchor if append else "1.0")
