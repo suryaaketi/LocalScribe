@@ -113,3 +113,19 @@ class History:
             if row:
                 return Settings(font_size=row[0], saves_history=bool(row[1]))
         return Settings()
+
+    @staticmethod
+    def _initialize(connection):
+        connection.execute(
+            "CREATE TABLE IF NOT EXISTS transcripts "
+            "(id INTEGER PRIMARY KEY, text TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP)"
+        )
+        connection.execute(
+            f"CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY CHECK (id = 1), "
+            f"font_size INTEGER NOT NULL CHECK (font_size BETWEEN {MIN_FONT_SIZE} AND {MAX_FONT_SIZE}), "
+            "saves_history INTEGER NOT NULL CHECK (saves_history IN (0, 1)))"
+        )
+        connection.execute(
+            "CREATE TABLE IF NOT EXISTS transcript_cache (key TEXT PRIMARY KEY NOT NULL, "
+            "transcript_id INTEGER NOT NULL REFERENCES transcripts(id) ON DELETE CASCADE)"
+        )
