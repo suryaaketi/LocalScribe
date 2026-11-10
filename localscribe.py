@@ -653,3 +653,15 @@ def main():
     history = History(args.state_dir.expanduser().resolve())
     engine = args.engine.expanduser().resolve()
     model = args.model.expanduser().resolve()
+    if args.check_setup:
+        try:
+            check_setup(engine, model)
+        except LocalScribeError as error:
+            parser.exit(1, f"{error}\n")
+        print("Local engine and model files are available.")
+    elif args.transcribe_file:
+        try:
+            text, _ = process_audio(args.transcribe_file.expanduser().resolve(), engine, model, history)
+        except (OSError, LocalScribeError) as error:
+            parser.exit(1, f"{display_error(error)}\n")
+        print(text)
