@@ -66,3 +66,12 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
     def change_size(delta):
         size = min(MAX_FONT_SIZE, max(MIN_FONT_SIZE, settings.font_size + delta))
         save_settings(replace(settings, font_size=size))
+
+    def show_history():
+        try:
+            entries = history.recent()
+        except (OSError, sqlite3.Error):
+            status.set("Couldn’t open local history. Check the app’s storage and try again.")
+            return
+        show("\n\n".join(entries))
+        status.set("Recent transcripts" if entries else "No saved transcripts yet.")
