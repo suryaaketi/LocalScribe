@@ -106,3 +106,27 @@ def transcribe_section(audio, engine, model):
         if not text.strip():
             raise NoSpeech()
         return text.strip()
+
+
+def transcribe_windows_section(audio, engine, model):
+    with tempfile.TemporaryDirectory(prefix="localscribe-python-report-") as output:
+        report = Path(output) / "transcript.json"
+        command = [str(engine), "-m", str(model), "-f", str(audio), "-l", "en", "-oj", "-of", str(report.with_suffix(""))]
+        try:
+            result = subprocess.run(command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL, timeout=240, check=False,
+                                    creationflags=subprocess.CREATE_NO_WINDOW)
+        except subprocess.TimeoutExpired:
+            raise LocalScribeError("The speech engine timed out. Try a shorter WAV file.") from None
+        if result.returncode or not report.is_file():
+            raise LocalScribeError("The Windows speech engine couldn’t read the WAV. Check the engine, its DLLs, and the model.")
+        try:
+            segments = json.loads(report.read_text(encoding="utf-8"))["transcription"]
+            if not isinstance(segments, list):
+                raise ValueError
+            text = " ".join(segment["text"].strip() for segment in segments).strip()
+        except (ValueError, KeyError, TypeError, AttributeError):
+            raise LocalScribeError("The speech engine returned an unreadable result. Try the file again.") from None
+        if not text:
+            raise NoSpeech()
+        return text
