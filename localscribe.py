@@ -223,3 +223,19 @@ def process_audio(audio, engine, model, history, on_partial=None):
         except (OSError, sqlite3.Error):
             return text, "Transcript ready. Local history could not be saved."
     return text, "Transcript ready. History saving is off."
+
+
+def run_mac_app(engine, model, history, smoke_test):
+    import AppKit as mac
+    import objc
+    from Foundation import NSObject
+    from PyObjCTools import AppHelper
+
+    class Face(mac.NSView):
+        def drawRect_(self, _):
+            mac.NSColor.blackColor().setFill()
+            mac.NSBezierPath.bezierPathWithOvalInRect_(self.bounds()).fill()
+            mac.NSColor.whiteColor().setFill()
+            for x in (20, 35):
+                eye = mac.NSMakeRect(x, 26, 8, 13)
+                mac.NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(eye, 4, 4).fill()
