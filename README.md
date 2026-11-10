@@ -54,3 +54,9 @@ Double-click `Run LocalScribe Python.command` or run it from Terminal. Choose **
 "./Run LocalScribe Python.command" --smoke-test
 "./Run LocalScribe Python.command" --transcribe-file /path/to/example.wav
 ```
+
+For long PCM WAV files, LocalScribe displays each completed minute of source audio as it finishes processing. The window can grow within the screen's usable area, then the transcript scrolls. Drag a window edge to choose your own size. If you scroll up, new text leaves your reading position alone. Scroll back to the bottom to follow incoming text. WAV encodings that need Core Audio's decoder display the result when processing finishes.
+
+Press **Command–O** to choose a file. **Smaller Text** and **Larger Text** change the transcript size and remember it for the next launch. **Show History** opens the recent saved transcripts.
+
+Use `--engine` or `LOCALSCRIBE_ENGINE` to select another local Argmax CLI. Use `--state-dir` to test with a separate history directory.
