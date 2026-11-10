@@ -17,3 +17,11 @@ if ! xcrun --find swift >/dev/null || ! command -v python3 >/dev/null; then
     printf '%s\n' 'Install Xcode and Python 3 before building the engine.' >&2
     exit 1
 fi
+
+project_dir=$(cd -- "$(dirname -- "$0")" && pwd -P)
+engine_dir="$project_dir/.build/engine"
+mkdir -p "$engine_dir"
+stage=$(mktemp -d "$engine_dir/setup.XXXXXX")
+trap 'rm -rf -- "$stage"' EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
