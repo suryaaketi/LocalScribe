@@ -145,3 +145,11 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
     ttk.Checkbutton(toolbar, text="Save history", variable=saves_history,
                     command=lambda: save_settings(replace(settings, saves_history=saves_history.get()))).pack(side="left")
     root.bind("<Control-o>", lambda _: choose_audio())
+
+    def close():
+        if busy:
+            status.set("Wait for the current transcription to finish before closing LocalScribe.")
+        else:
+            root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", close)
