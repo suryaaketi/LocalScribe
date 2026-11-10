@@ -130,3 +130,17 @@ def transcribe_windows_section(audio, engine, model):
         if not text:
             raise NoSpeech()
         return text
+
+
+def write_wave_section(source, destination, frames):
+    params = source.getparams()
+    with wave.open(str(destination), "wb") as output:
+        output.setparams(params._replace(nframes=0))
+        remaining = frames
+        frame_size = params.nchannels * params.sampwidth
+        while remaining:
+            data = source.readframes(min(remaining, params.framerate))
+            if not data or len(data) % frame_size:
+                raise LocalScribeError("The WAV ended before all of its audio could be read.")
+            output.writeframesraw(data)
+            remaining -= len(data) // frame_size
