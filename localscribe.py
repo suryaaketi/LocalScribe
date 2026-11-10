@@ -419,3 +419,37 @@ def run_mac_app(engine, model, history, smoke_test):
             layout.ensureLayoutForTextContainer_(container)
             used = layout.usedRectForTextContainer_(container)
             return ceil(mac.NSMaxY(used) + 2 * self.text.textContainerInset().height)
+
+        @objc.python_method
+        def fitTranscript(self, expand=False):
+            if self.fitting:
+                return
+            self.fitting = True
+            try:
+                height = self.transcriptHeight()
+                clip = self.scroll.contentView()
+                if expand and not self.user_resized:
+                    screen = self.window.screen() or mac.NSScreen.mainScreen()
+                    if screen:
+                        area = screen.visibleFrame()
+                        frame = self.window.frame()
+                        available = max(0, area.size.height - 24 - frame.size.height)
+                        grow = min(available, max(0, height - clip.bounds().size.height))
+                        if grow > 0:
+                            new_height = frame.size.height + grow
+                            top = min(mac.NSMaxY(area) - 12, max(mac.NSMaxY(frame), area.origin.y + 12 + new_height))
+                            self.window.setFrame_display_(mac.NSMakeRect(
+                                frame.origin.x, top - new_height, frame.size.width, new_height
+                            ), True)
+                            height = self.transcriptHeight()
+                size = clip.bounds().size
+                self.text.setFrameSize_(mac.NSMakeSize(size.width, max(size.height, height)))
+                self.scroll.reflectScrolledClipView_(clip)
+            finally:
+                self.fitting = False
+
+        def windowWillStartLiveResize_(self, _):
+            self.user_resized = True
+
+        def windowDidResize_(self, _):
+            self.fitTranscript()
