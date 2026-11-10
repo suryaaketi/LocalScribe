@@ -364,3 +364,23 @@ def run_mac_app(engine, model, history, smoke_test):
                 self.ready = True
                 self.window.setInitialFirstResponder_(self.button)
                 self.window.setDefaultButtonCell_(self.button.cell())
+
+            frame = mac.NSMakeRect(0, 0, 64, 64)
+            self.pet = mac.NSPanel.alloc().initWithContentRect_styleMask_backing_defer_(
+                frame, mac.NSWindowStyleMaskBorderless | mac.NSWindowStyleMaskNonactivatingPanel,
+                mac.NSBackingStoreBuffered, False,
+            )
+            self.pet.setTitle_("LocalScribe Pet")
+            self.pet.setOpaque_(False)
+            self.pet.setBackgroundColor_(mac.NSColor.clearColor())
+            self.pet.setHasShadow_(False)
+            self.pet.setFloatingPanel_(True)
+            self.pet.setLevel_(mac.NSFloatingWindowLevel)
+            self.pet.setHidesOnDeactivate_(False)
+            self.pet.setContentView_(Face.alloc().initWithFrame_(frame))
+            screen = mac.NSScreen.mainScreen()
+            if screen:
+                area = screen.visibleFrame()
+                self.pet.setFrameOrigin_(mac.NSMakePoint(
+                    area.origin.x + area.size.width - 90, area.origin.y + 56
+                ))
