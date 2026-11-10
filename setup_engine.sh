@@ -54,3 +54,16 @@ if len(pins) != 1 or pins[0]["identity"] != "swift-argument-parser" or pins[0]["
 pins[0]["state"] = {"version": version, "revision": revision}
 path.write_text(json.dumps(lock, indent=2) + "\n", encoding="utf-8")
 PY
+
+build=(xcrun swift build --package-path "$source_dir" --scratch-path "$scratch_dir"
+       --configuration release --only-use-versions-from-resolved-file --product argmax-cli)
+"${build[@]}"
+if [[ $(git -C "$scratch_dir/checkouts/swift-argument-parser" rev-parse HEAD) != "$parser_revision" ]]; then
+    printf '%s\n' 'ArgumentParser source revision did not match the expected pin.' >&2
+    exit 1
+fi
+binary_dir=$("${build[@]}" --show-bin-path)
+"$binary_dir/argmax-cli" transcribe --help >/dev/null
+install -m 0755 "$binary_dir/argmax-cli" "$stage/argmax-cli"
+mv -fh "$stage/argmax-cli" "$engine_dir/argmax-cli"
+printf 'Built the local speech engine at %s\n' "$engine_dir/argmax-cli"
