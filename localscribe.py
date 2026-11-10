@@ -636,3 +636,20 @@ def run_mac_app(engine, model, history, smoke_test):
     controls.pet.orderFrontRegardless()
     application.activateIgnoringOtherApps_(True)
     AppHelper.runEventLoop()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--engine", type=Path, default=Path(os.environ.get("LOCALSCRIBE_ENGINE", DEFAULT_ENGINE)))
+    parser.add_argument("--model", type=Path, default=Path(os.environ.get("LOCALSCRIBE_MODEL", DEFAULT_MODEL)))
+    parser.add_argument("--state-dir", type=Path, default=DEFAULT_STATE_DIR)
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--smoke-test", action="store_true", help="Check desktop controls without loading the speech engine.")
+    modes.add_argument("--check-setup", action="store_true", help="Check local engine and model files.")
+    modes.add_argument("--transcribe-file", type=Path)
+    args = parser.parse_args()
+    if sys.platform not in {"darwin", "win32"}:
+        parser.exit(1, "This LocalScribe prototype supports macOS and Windows.\n")
+    history = History(args.state_dir.expanduser().resolve())
+    engine = args.engine.expanduser().resolve()
+    model = args.model.expanduser().resolve()
