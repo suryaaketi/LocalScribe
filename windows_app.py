@@ -51,3 +51,14 @@ def run_windows_app(transcribe, history, display_error, smoke_test=False):
         text.insert("end", value)
         text.configure(state="disabled")
         text.yview("end" if append and following else anchor if append else "1.0")
+
+    def save_settings(updated):
+        nonlocal settings
+        try:
+            history.update_settings(updated)
+        except (OSError, sqlite3.Error):
+            saves_history.set(settings.saves_history)
+            status.set("Couldn’t save your settings. Check the app’s storage and try again.")
+            return
+        settings = updated
+        text_font.configure(size=settings.font_size)
