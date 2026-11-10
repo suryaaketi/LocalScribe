@@ -453,3 +453,25 @@ def run_mac_app(engine, model, history, smoke_test):
 
         def windowDidResize_(self, _):
             self.fitTranscript()
+
+        @objc.python_method
+        def appendTranscript(self, text, section, total):
+            self.status.setStringValue_(f"Transcribing on this Mac… {section} of {total} sections ready.")
+            if not text:
+                return
+            clip = self.scroll.contentView()
+            bounds = clip.bounds()
+            at_bottom = mac.NSMaxY(bounds) >= self.text.frame().size.height - 24
+            storage = self.text.textStorage()
+            prefix = "\n\n" if storage.length() else ""
+            attributes = {
+                mac.NSFontAttributeName: mac.NSFont.systemFontOfSize_(self.settings.font_size),
+                mac.NSForegroundColorAttributeName: mac.NSColor.textColor(),
+            }
+            storage.appendAttributedString_(mac.NSAttributedString.alloc().initWithString_attributes_(prefix + text, attributes))
+            self.fitTranscript(expand=True)
+            if at_bottom:
+                self.text.scrollRangeToVisible_((storage.length(), 0))
+            else:
+                clip.scrollToPoint_(bounds.origin)
+                self.scroll.reflectScrolledClipView_(clip)
