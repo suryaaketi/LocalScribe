@@ -283,3 +283,12 @@ def run_mac_app(engine, model, history, smoke_test):
             self.window.setMinSize_(mac.NSMakeSize(515, 390))
             self.window.setReleasedWhenClosed_(False)
             self.window.center()
+
+            title = mac.NSTextField.labelWithString_("Transcribe a WAV file")
+            title.setFont_(mac.NSFont.systemFontOfSize_weight_(23, mac.NSFontWeightSemibold))
+            intro = mac.NSTextField.wrappingLabelWithString_("Choose a WAV with English speech. Your transcript appears below.")
+            intro.setFont_(mac.NSFont.systemFontOfSize_(15))
+            intro.setTextColor_(mac.NSColor.secondaryLabelColor())
+            self.button = self.makeButton("Choose WAV File…", "chooseAudio:")
+            self.history_button = self.makeButton("Show History", "showHistory:")
+            actions = self.makeRow([self.button, self.history_button])
