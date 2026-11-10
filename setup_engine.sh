@@ -25,3 +25,13 @@ stage=$(mktemp -d "$engine_dir/setup.XXXXXX")
 trap 'rm -rf -- "$stage"' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
+
+source_dir="$stage/argmax-oss-swift"
+scratch_dir="$stage/swiftpm"
+git init -q "$source_dir"
+git -C "$source_dir" fetch --no-tags --depth=1 "$argmax_url" "$argmax_revision"
+git -C "$source_dir" checkout --quiet --detach FETCH_HEAD
+if [[ $(git -C "$source_dir" rev-parse HEAD) != "$argmax_revision" ]]; then
+    printf '%s\n' 'Argmax source revision did not match the expected pin.' >&2
+    exit 1
+fi
