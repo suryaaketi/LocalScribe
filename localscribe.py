@@ -27,3 +27,15 @@ else:
     DEFAULT_ENGINE = PROJECT_DIR / ".build/engine/argmax-cli"
     DEFAULT_MODEL = PROJECT_DIR / ".build/models/openai_whisper-large-v3-v20240930_turbo"
     DEFAULT_STATE_DIR = Path.home() / "Library/Application Support/LocalScribe Python Prototype"
+SECTION_SECONDS = 60
+
+REQUIRED_MODEL_FILES = (
+    "config.json",
+    "generation_config.json",
+    "AudioEncoder.mlmodelc/coremldata.bin",
+    "MelSpectrogram.mlmodelc/coremldata.bin",
+    "TextDecoder.mlmodelc/coremldata.bin",
+    "tokenizer/config.json",
+    "tokenizer/tokenizer.json",
+    "tokenizer/tokenizer_config.json",
+)
