@@ -81,3 +81,13 @@ class History:
                     (CACHE_LIMIT,),
                 )
             return True
+
+    def recent(self):
+        if not self.path.is_file():
+            return []
+        with closing(self._reader()) as connection:
+            if not self._has_table(connection, "transcripts"):
+                return []
+            return [
+                text for (text,) in connection.execute("SELECT text FROM transcripts ORDER BY id DESC LIMIT 20")
+            ]
