@@ -545,3 +545,14 @@ def run_mac_app(engine, model, history, smoke_test):
                 AppHelper.callAfter(self.finished, text, status)
             except (OSError, LocalScribeError) as error:
                 AppHelper.callAfter(self.finished, None, display_error(error))
+
+        @objc.python_method
+        def finished(self, text, status):
+            if text is not None and self.text.string() != text:
+                self.showText(text, expand=True)
+            elif text is None and self.text.string():
+                status = "Partial transcript shown. " + status
+            elif text is None:
+                self.showText("Choose another WAV file to try again.")
+            self.status.setStringValue_(status)
+            self.setBusy(False)
